@@ -1,6 +1,5 @@
+# Forked from https://github.com/jagregory/pandoc-docker
 FROM haskell:8.0
-
-MAINTAINER James Gregory <james@jagregory.com>
 
 # install latex packages
 RUN apt-get update -y \
@@ -16,13 +15,16 @@ RUN apt-get update -y \
 
 # will ease up the update process
 # updating this env variable will trigger the automatic build of the Docker image
-ENV PANDOC_VERSION "1.19.2.1"
+ENV PANDOC_VERSION "2.1"
 
-# install pandoc
-RUN cabal update && cabal install pandoc-${PANDOC_VERSION}
+# install pandoc and additional packages
+RUN cabal update
+RUN cabal install pandoc-${PANDOC_VERSION}
+# Plugins
+RUN cabal install pandoc-include
 
 WORKDIR /source
 
-ENTRYPOINT ["/root/.cabal/bin/pandoc"]
+ENTRYPOINT ["/root/.cabal/bin/pandoc", "--filter pandoc-include"]
 
 CMD ["--help"]
